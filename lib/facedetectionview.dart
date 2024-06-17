@@ -66,6 +66,8 @@ class FaceRecognitionViewState extends State<FaceRecognitionView> {
     await faceDetectionViewController?.startCamera(cameraLens ?? 1);
   }
 
+
+
   Future<bool> onFaceDetected(faces) async {
     if (_recognized == true) {
       return false;
