@@ -2,6 +2,7 @@
 
 import 'dart:math';
 
+import 'package:facerecognition_flutter/init_dec.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -58,6 +59,8 @@ class MyHomePageState extends State<MyHomePage> {
   bool _visibleWarning = false;
 
   final _facesdkPlugin = FacesdkPlugin();
+
+  // InitDec initDec
 
   @override
   void initState() {
