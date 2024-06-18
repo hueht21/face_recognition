@@ -1,9 +1,13 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:math';
+
+// import 'dart:math';
 import 'package:facesdk_plugin/facesdk_plugin.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:path/path.dart';
@@ -16,6 +20,7 @@ import 'settings.dart';
 import 'person.dart';
 import 'personview.dart';
 import 'facedetectionview.dart';
+import 'dart:developer';
 
 void main() {
   runApp(const MyApp());
@@ -71,9 +76,9 @@ class MyHomePageState extends State<MyHomePage> {
         await _facesdkPlugin
             .setActivation(
                 "CFO+UUpNLaDMlmdjoDlhBMbgCwT27CzQJ4xHpqe9rDOErwoEUeCGPRTfQkZEAFAFdO0+rTNRIwnQwpqqGxBbfnLkfyFeViVS5bpWZFk15QXP3ZtTEuU1rK5zsFwcZrqRUxsG9dXImc+Vw5Ddc9zBp9GE"
-                 "UuDycHLqC9KgQGVb0TS2u9Kz67HQOSDw9hskjBpjRbqiG+F/h5DBLPzjgFh1Y6vzgg6I59FzTOcd"
-                 "rdEbX7kI15Nwgf1hvHGtSgON/a0Fmw+XNdnxH2pVY96mcTemHYZAtxh8lA/t1DtTyZXpHjW8N6nq"
-                 "4UN2YDlKLXSrDzLpLHJmBsdpH71AXb7dfAq94Q==")
+                "UuDycHLqC9KgQGVb0TS2u9Kz67HQOSDw9hskjBpjRbqiG+F/h5DBLPzjgFh1Y6vzgg6I59FzTOcd"
+                "rdEbX7kI15Nwgf1hvHGtSgON/a0Fmw+XNdnxH2pVY96mcTemHYZAtxh8lA/t1DtTyZXpHjW8N6nq"
+                "4UN2YDlKLXSrDzLpLHJmBsdpH71AXb7dfAq94Q==")
             .then((value) => facepluginState = value ?? -1);
       } else {
         await _facesdkPlugin
@@ -125,6 +130,7 @@ class MyHomePageState extends State<MyHomePage> {
       warningState = "Init error!";
       visibleWarning = true;
     }
+    print("$warningState");
 
     setState(() {
       _warningState = warningState;
@@ -333,9 +339,10 @@ class MyHomePageState extends State<MyHomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => FaceRecognitionView(
-                                    personList: widget.personList,
-                                  )),
+                            builder: (context) => FaceRecognitionView(
+                              personList: widget.personList,
+                            ),
+                          ),
                         );
                       }),
                 ),
@@ -395,6 +402,58 @@ class MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
+            ElevatedButton.icon(
+                label: const Text('tes'),
+                icon: const Icon(
+                  Icons.offline_bolt,
+                ),
+                style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.only(top: 10, bottom: 10),
+                    backgroundColor:
+                        Theme.of(context).colorScheme.primaryContainer,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    )),
+                onPressed: () async {
+                  final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+                  if (image == null) return;
+
+                  var rotatedImage =
+                      await FlutterExifRotation.rotateImage(path: image.path);
+
+                  final faces = await _facesdkPlugin.extractFaces(rotatedImage.path);
+                  Uint8List img = Uint8List(0);
+                  for (var face in faces) {
+                    num randomNumber =
+                        10000 + Random().nextInt(10000); // from 0 upto 99 included
+                    // Person person = Person(
+                    //     name: 'Person' + randomNumber.toString(),
+                    //     faceJpg: face['faceJpg'],
+                    //     templates: face['templates']);
+                    // insertPerson(person);
+
+                    img = face['templates'];
+                  }
+
+                  // for (var person in widget.personList) {
+                  //
+                  //   if (maxSimilarity < similarity) {
+                  //     maxSimilarity = similarity;
+                  //     maxSimilarityName = person.name;
+                  //     maxLiveness = face['liveness'];
+                  //     maxYaw = face['yaw'];
+                  //     maxRoll = face['roll'];
+                  //     maxPitch = face['pitch'];
+                  //     identifedFace = face['faceJpg'];
+                  //     enrolledFace = person.faceJpg;
+                  //   }
+                  // }
+                  double similarity = await _facesdkPlugin.similarityCalculation(
+                      img, img) ??
+                      -1;
+                  print(similarity);
+
+                }),
             const SizedBox(
               height: 8,
             ),
